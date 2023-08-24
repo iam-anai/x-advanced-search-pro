@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Advanced Twitter Search Tool</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+    <style>
+      /* existing styles here */
+    </style>
+  </head>
+  <body class="bg-gray-200">
+    <div class="bg-white mx-auto max-w-2xl rounded-lg shadow-lg overflow-hidden">
+      <h1 class="text-blue-500 text-center text-3xl font-bold py-4">Advanced Twitter Search Tool</h1>
+      <form class="form px-8 py-6">
+        <div class="input-box">
+          <label for="normal-search-term" class="w-48 text-lg font-medium text-gray-700">Normal Keywords:</label>
+          <input type="text" id="normal-search-term" name="normal-search-term" class="w-full rounded-md border-gray-400 h-10 px-3" placeholder="Enter normal keywords" required>
+        </div>
+        <div class="input-box">
+          <label for="exact-search-term" class="w-48 text-lg font-medium text-gray-700">Exact Match Keywords:</label>
+          <input type="text" id="exact-search-term" name="exact-search-term" class="w-full rounded-md border-gray-400 h-10 px-3" placeholder='Enter exact match keywords enclosed in quotes. (Example: "exact keyword match")' />
+        </div>
+        <div class="input-box">
+          <label for="result-type" class="w-48 text-lg font-medium text-gray-700">Result Type:</label>
+          <select id="result-type" name="result-type" class="select-box rounded-md border-gray-400 h-10 px-3" required>
+            <option value="mixed">Mixed</option>
+            <option value="recent">Recent</option>
+            <option value="popular">Popular</option>
+          </select>
+        </div>
+        <div class="input-box">
+          <label for="min-likes" class="w-48 text-lg font-medium text-gray-700">Minimum Likes:</label>
+          <input type="number" id="min-likes" name="min-likes" min="100" value="100" class="w-24 rounded-md border-gray-400 h-10 px-3" required />
+        </div>
+        <div class="input-box">
+          <label for="start-date" class="w-48 text-lg font-medium text-gray-700">Start Date:</label>
+          <input type="date" id="start-date" name="start-date" class="w-56 rounded-md border-gray-400 h-10 px-3" value="" />
+          <label for="end-date" class="w-48 text-lg font-medium text-gray-700">End Date:</label>
+          <input type="date" id="end-date" name="end-date" class="w-56 rounded-md border-gray-400 h-10 px-3" value="" />
+        </div>
+        <button class="submit-btn bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mt-4 ml-auto">
+          Search
+        </button>
+      </form>
+    </div>
+    <script>
+  
+      // add JavaScript to handle form submission
+      // add JavaScript to handle form submission
+const form = document.querySelector('.form');
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const normalSearchTermInput = document.querySelector('#normal-search-term');
+  const exactSearchTermInput = document.querySelector('#exact-search-term');
+  const normalSearchTerms = encodeURIComponent(normalSearchTermInput.value);
+  const exactSearchTerms = encodeURIComponent(exactSearchTermInput.value);
+  const resultType = document.querySelector('#result-type').value;
+  const minLikes = document.querySelector('#min-likes').value;
+  const startDate = document.querySelector('#start-date').value;
+  let endDate = document.querySelector('#end-date').value;
+  let searchQuery = `lang:en ${normalSearchTerms}`;
+  if (exactSearchTerms) {
+    searchQuery += ` "${exactSearchTerms}"`;
+  } 
+  searchQuery += ` min_faves:${minLikes}`;
+  
+  if (startDate) {
+    searchQuery += ` since:${startDate}`;
+    
+    if (endDate) {
+      searchQuery += ` until:${endDate}`;
+    } else {
+      const yesterday = new Date(Date.now() - 86400000); // 86400000 is the number of milliseconds in a day
+      const yyyy = yesterday.getFullYear();
+      const mm = String(yesterday.getMonth() + 1).padStart(2, '0');
+      const dd = String(yesterday.getDate()).padStart(2, '0');
+      endDate = `${yyyy}-${mm}-${dd}`;
+      searchQuery += ` until:${endDate}`;
+    }
+  } else {
+    if (endDate) {
+      searchQuery += ` until:${endDate}`;
+    } else {
+      const yesterday = new Date(Date.now() - 86400000); // 86400000 is the number of milliseconds in a day
+      const yyyy = yesterday.getFullYear();
+      const mm = String(yesterday.getMonth() + 1).padStart(2, '0');
+      const dd = String(yesterday.getDate()).padStart(2, '0');
+      endDate = `${yyyy}-${mm}-${dd}`;
+      searchQuery += ` until:${endDate}`;
+    }
+  }
+
+  if (resultType === "recent") {
+    searchQuery += " filter:twimg exclude:retweets";
+  } else if (resultType === "popular") {
+    searchQuery += " filter:twimg min_faves:10000 exclude:retweets";
+  }
+  
+  // append Twitter search URL to base URL
+  const twitterUrl = "https://twitter.com/search?q=";
+  // encode the search query to make it safe for URLs
+  const encodedSearch = encodeURIComponent(searchQuery);
+  const fullUrl = `${twitterUrl}${encodedSearch}`;
+  document.location.href = fullUrl;
+});
+    </script>
+  </body>
+</html>
